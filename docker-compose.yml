@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  postgres-lovable-app:
+    image: postgres:18
+    container_name: postgres-lovable-app
+    environment:
+      POSTGRES_DB: lovable_app_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-lovable-app-data:/var/lib/postgresql
+    networks:
+      - lovable-app-network
+
+volumes:
+  postgres-lovable-app-data:
+
+networks:
+  lovable-app-network:
