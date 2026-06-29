@@ -55,7 +55,7 @@ public class ProjectController {
 
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(@PathVariable Long id, @RequestBody ProjectRequest request) {
+    public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(@PathVariable Long id, @RequestBody @Valid ProjectRequest request) {
         Long userId = 1L;
         return ResponseEntity.ok(
                 ApiResponse.success(projectService.updateProject(id, request, userId), HttpStatus.OK.value())

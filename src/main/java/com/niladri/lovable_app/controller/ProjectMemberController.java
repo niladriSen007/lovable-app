@@ -6,6 +6,7 @@ import com.niladri.lovable_app.dto.response.ApiResponse;
 import com.niladri.lovable_app.dto.response.member.MemberResponse;
 import com.niladri.lovable_app.entity.ProjectMember;
 import com.niladri.lovable_app.service.projectmember.IProjectMemberService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,7 +35,7 @@ public class ProjectMemberController {
     @PostMapping
     public ResponseEntity<ApiResponse<MemberResponse>> inviteMember(
             @PathVariable Long projectId,
-            @RequestBody InviteMemberRequest request
+            @RequestBody @Valid InviteMemberRequest request
     ) {
         Long userId = 1L;
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -46,7 +47,7 @@ public class ProjectMemberController {
     public ResponseEntity<ApiResponse<MemberResponse>> updateMemberRole(
             @PathVariable Long projectId,
             @PathVariable Long memberId,
-            @RequestBody UpdateMemberRoleRequest request
+            @RequestBody @Valid UpdateMemberRoleRequest request
     ) {
         Long userId = 1L;
         return ResponseEntity.ok(

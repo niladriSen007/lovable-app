@@ -37,27 +37,20 @@ public class ProjectMemberServiceImpl implements IProjectMemberService {
 
     @Override
     public List<MemberResponse> getProjectMembers(Long projectId, Long userId) {
-        Project accessibleProjectDetails = getAccessibleProjectDetails(projectId, userId);
+//        Project accessibleProjectDetails = getAccessibleProjectDetails(projectId, userId);
 
-        List<MemberResponse> memberResponseList = new ArrayList<>();
-        memberResponseList.add(projectMemberMapper.toMemberResponse(accessibleProjectDetails.getOwner()));
-
-        memberResponseList.addAll(
-                projectMemberRepository.findByProjectMemberIdProjectId(projectId).stream().map(
-                        projectMemberMapper::toMemberResponseFromProjectMember
-                ).toList()
-        );
-
-        return memberResponseList;
+        return projectMemberRepository.findByProjectMemberIdProjectId(projectId).stream().map(
+                projectMemberMapper::toMemberResponseFromProjectMember
+        ).toList();
     }
 
     @Override
     public MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId) {
         Project accessibleProjectDetails = getAccessibleProjectDetails(projectId, userId);
 
-        if (!accessibleProjectDetails.getOwner().getId().equals(userId)) {
-            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId);
-        }
+//        if (!accessibleProjectDetails.getOwner().getId().equals(userId)) {
+//            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId);
+//        }
 
         UserEntity user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UserNotExistException("User with email: " + request.email() + " does not exist"));
@@ -88,9 +81,9 @@ public class ProjectMemberServiceImpl implements IProjectMemberService {
     @Override
     public MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest request, Long userId) {
         Project accessibleProjectDetails = getAccessibleProjectDetails(projectId, userId);
-        if(!accessibleProjectDetails.getOwner().getId().equals(userId)) {
-            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId);
-        }
+//        if(!accessibleProjectDetails.getOwner().getId().equals(userId)) {
+//            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId);
+//        }
 
         // Creating the composite primary key for the project member
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
@@ -104,19 +97,20 @@ public class ProjectMemberServiceImpl implements IProjectMemberService {
     @Override
     public Void deleteProjectMember(Long projectId, Long memberId, Long userId) {
         Project accessibleProjectDetails = getAccessibleProjectDetails(projectId, userId);
-        if (!accessibleProjectDetails.getOwner().getId().equals(userId)) {
-            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId);
-        }
+//        if (!accessibleProjectDetails.getOwner().getId().equals(userId)) {
+//            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId);
+//        }
 
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
-        if(!projectMemberRepository.existsById(projectMemberId)) {
+        if (!projectMemberRepository.existsById(projectMemberId)) {
             throw new UserIsNotInMemberListException("User with id: " + memberId + " is not a member of the project with id: " + projectId);
         }
         projectMemberRepository.deleteById(projectMemberId);
+        return null;
     }
 
     private Project getAccessibleProjectDetails(Long projectId, Long userId) {
-        return projectRepository.findAccessibleProjectsByOwnerId(userId, projectId)
+        return projectRepository.findAccessibleProjectsByUserId(userId, projectId)
                 .orElseThrow(() -> new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId));
     }
 }

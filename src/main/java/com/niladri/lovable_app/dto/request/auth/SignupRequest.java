@@ -1,8 +1,11 @@
 package com.niladri.lovable_app.dto.request.auth;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public record SignupRequest(
-        String email,
-        String name,
-        String password
+        @Email @NotBlank String email,
+        @NotBlank String name,
+        @NotBlank String password
 ) {
 }
