@@ -12,10 +12,40 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UserNotFoundException e) {
+    @ExceptionHandler(UserNotExistException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UserNotExistException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @ExceptionHandler(ProjectNotExistException.class)
+    public ResponseEntity<ApiResponse<Void>> handleProjectNotFoundException(ProjectNotExistException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND.value()));
+    }
+
+    @ExceptionHandler(CannotSendInviteToYourselfException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCannotSendInviteToYourselfException(CannotSendInviteToYourselfException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @ExceptionHandler(UserIsAlreadyInMemberListException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserIsAlreadyInMemberListException(UserIsAlreadyInMemberListException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @ExceptionHandler(UserIsNotInMemberListException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserIsNotInMemberListException(UserIsNotInMemberListException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

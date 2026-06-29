@@ -29,4 +29,16 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                             """
     )
     Page<Project> findAllProjectsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Query(
+            """
+                        SELECT p FROM Project p 
+                                            LEFT JOIN FETCH p.owner
+                                WHERE p.deletedAt IS NULL 
+                                AND p.id = :projectId  
+                                                AND p.owner.id = :ownerId
+                    """
+    )
+    Optional<Project> findAccessibleProjectsByOwnerId(@Param("ownerId") Long ownerId, @Param("projectId") Long projectId);
+
 }

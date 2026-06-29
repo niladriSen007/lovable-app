@@ -43,12 +43,4 @@ public class UserEntity {
 
     Instant deletedAt;
 
-    public UserProfileResponse map(UserEntity o) {
-        return new UserProfileResponse(
-                o.getId(),
-                o.getEmail(),
-                o.getName(),
-                o.getAvatarUrl()
-        );
-    }
 }

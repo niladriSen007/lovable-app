@@ -55,7 +55,7 @@ public class ProjectMemberController {
     }
 
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<ApiResponse<MemberResponse>> deleteProjectMember(
+    public ResponseEntity<ApiResponse<Void>> deleteProjectMember(
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ) {

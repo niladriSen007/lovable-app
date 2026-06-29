@@ -26,24 +26,6 @@ public class ProjectController {
 
     IProjectService projectService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<Page<ProjectSummaryResponse>>> getMyProjects(
-            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
-    ) {
-        Long userId = 1L; //TODO: update later with real Spring Security
-        return ResponseEntity.ok(
-                ApiResponse.success(projectService.getUserProjects(userId,pageable),HttpStatus.OK.value())
-        );
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProjectResponse>> getProjectById(@PathVariable Long id) {
-        Long userId = 1L;
-        return ResponseEntity.ok(
-                ApiResponse.success(projectService.getUserProjectById(id, userId), HttpStatus.OK.value())
-        );
-    }
-
     @PostMapping
     public ResponseEntity<ApiResponse<ProjectResponse>> createProject(@RequestBody @Valid ProjectRequest request) {
         Long userId = 1L;
@@ -51,6 +33,26 @@ public class ProjectController {
                 ApiResponse.success(projectService.createProject(request, userId), HttpStatus.CREATED.value())
         );
     }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<ProjectSummaryResponse>>> getLoggedInUserProjects(
+            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
+    ) {
+        Long userId = 1L; //TODO: update later with real Spring Security
+        return ResponseEntity.ok(
+                ApiResponse.success(projectService.getLoggedInUserProjects(userId,pageable),HttpStatus.OK.value())
+        );
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ProjectResponse>> getProjectById(@PathVariable Long id) {
+        Long userId = 1L;
+        return ResponseEntity.ok(
+                ApiResponse.success(projectService.getProjectDetailsByUserAndProjectId(id, userId), HttpStatus.OK.value())
+        );
+    }
+
+
 
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(@PathVariable Long id, @RequestBody ProjectRequest request) {
