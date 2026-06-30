@@ -9,19 +9,19 @@ import com.niladri.lovable_app.entity.ProjectMemberId;
 import com.niladri.lovable_app.entity.UserEntity;
 import com.niladri.lovable_app.exceptions.*;
 import com.niladri.lovable_app.mapper.ProjectMemberMapper;
-import com.niladri.lovable_app.mapper.UserMapper;
 import com.niladri.lovable_app.repository.ProjectMemberRepository;
 import com.niladri.lovable_app.repository.ProjectRepository;
 import com.niladri.lovable_app.repository.UserRepository;
+import com.niladri.lovable_app.security.JWTService;
 import com.niladri.lovable_app.service.projectmember.IProjectMemberService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,28 +34,25 @@ public class ProjectMemberServiceImpl implements IProjectMemberService {
     ProjectRepository projectRepository;
     UserRepository userRepository;
     ProjectMemberMapper projectMemberMapper;
+    JWTService jwtService;
 
     @Override
-    public List<MemberResponse> getProjectMembers(Long projectId, Long userId) {
-//        Project accessibleProjectDetails = getAccessibleProjectDetails(projectId, userId);
-
+    @PreAuthorize("@security.canViewMembers(#projectId)")
+    public List<MemberResponse> getProjectMembers(Long projectId) {
         return projectMemberRepository.findByProjectMemberIdProjectId(projectId).stream().map(
                 projectMemberMapper::toMemberResponseFromProjectMember
         ).toList();
     }
 
     @Override
-    public MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId) {
-        Project accessibleProjectDetails = getAccessibleProjectDetails(projectId, userId);
-
-//        if (!accessibleProjectDetails.getOwner().getId().equals(userId)) {
-//            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId);
-//        }
+    @PreAuthorize("@security.canManageMembers(#projectId)")
+    public MemberResponse inviteMember(Long projectId, InviteMemberRequest request) {
+        Project accessibleProjectDetails = getAccessibleProjectDetails(projectId, jwtService.getLoggedInUserId());
 
         UserEntity user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UserNotExistException("User with email: " + request.email() + " does not exist"));
 
-        if (user.getId().equals(userId)) {
+        if (user.getId().equals(jwtService.getLoggedInUserId())) {
             throw new CannotSendInviteToYourselfException("Owner cannot be invited as a member");
         }
 
@@ -68,6 +65,8 @@ public class ProjectMemberServiceImpl implements IProjectMemberService {
 
         ProjectMember projectMember = ProjectMember.builder()
                 .projectMemberId(projectMemberId)
+                .project(accessibleProjectDetails)
+                .user(user)
                 .projectRole(request.role())
                 .invitedAt(Instant.now())
                 .invitedBy(user)
@@ -79,11 +78,8 @@ public class ProjectMemberServiceImpl implements IProjectMemberService {
     }
 
     @Override
-    public MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest request, Long userId) {
-        Project accessibleProjectDetails = getAccessibleProjectDetails(projectId, userId);
-//        if(!accessibleProjectDetails.getOwner().getId().equals(userId)) {
-//            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId);
-//        }
+    @PreAuthorize("@security.canManageMembers(#projectId)")
+    public MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest request) {
 
         // Creating the composite primary key for the project member
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
@@ -95,11 +91,8 @@ public class ProjectMemberServiceImpl implements IProjectMemberService {
     }
 
     @Override
-    public Void deleteProjectMember(Long projectId, Long memberId, Long userId) {
-        Project accessibleProjectDetails = getAccessibleProjectDetails(projectId, userId);
-//        if (!accessibleProjectDetails.getOwner().getId().equals(userId)) {
-//            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId);
-//        }
+    @PreAuthorize("@security.canManageMembers(#projectId)")
+    public Void deleteProjectMember(Long projectId, Long memberId) {
 
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
         if (!projectMemberRepository.existsById(projectMemberId)) {

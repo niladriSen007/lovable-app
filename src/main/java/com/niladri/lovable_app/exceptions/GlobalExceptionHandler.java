@@ -48,6 +48,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentialsException(InvalidCredentialsException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException e) {
         String errors = e.getBindingResult().getFieldErrors().stream()

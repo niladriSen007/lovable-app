@@ -4,6 +4,7 @@ import com.niladri.lovable_app.dto.request.project.ProjectRequest;
 import com.niladri.lovable_app.dto.response.ApiResponse;
 import com.niladri.lovable_app.dto.response.project.ProjectResponse;
 import com.niladri.lovable_app.dto.response.project.ProjectSummaryResponse;
+import com.niladri.lovable_app.security.JWTService;
 import com.niladri.lovable_app.service.project.IProjectService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -28,9 +29,8 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProjectResponse>> createProject(@RequestBody @Valid ProjectRequest request) {
-        Long userId = 1L;
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.success(projectService.createProject(request, userId), HttpStatus.CREATED.value())
+                ApiResponse.success(projectService.createProject(request), HttpStatus.CREATED.value())
         );
     }
 
@@ -38,17 +38,15 @@ public class ProjectController {
     public ResponseEntity<ApiResponse<Page<ProjectSummaryResponse>>> getLoggedInUserProjects(
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
     ) {
-        Long userId = 1L; //TODO: update later with real Spring Security
         return ResponseEntity.ok(
-                ApiResponse.success(projectService.getLoggedInUserProjects(userId,pageable),HttpStatus.OK.value())
+                ApiResponse.success(projectService.getLoggedInUserProjects(pageable),HttpStatus.OK.value())
         );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProjectResponse>> getProjectById(@PathVariable Long id) {
-        Long userId = 1L;
         return ResponseEntity.ok(
-                ApiResponse.success(projectService.getProjectDetailsByUserAndProjectId(id, userId), HttpStatus.OK.value())
+                ApiResponse.success(projectService.getProjectDetailsByUserAndProjectId(id), HttpStatus.OK.value())
         );
     }
 
@@ -56,16 +54,14 @@ public class ProjectController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(@PathVariable Long id, @RequestBody @Valid ProjectRequest request) {
-        Long userId = 1L;
         return ResponseEntity.ok(
-                ApiResponse.success(projectService.updateProject(id, request, userId), HttpStatus.OK.value())
+                ApiResponse.success(projectService.updateProject(id, request), HttpStatus.OK.value())
         );
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProject(@PathVariable Long id) {
-        Long userId = 1L;
-        projectService.softDelete(id, userId);
+        projectService.softDelete(id);
         return ResponseEntity.ok(
                 ApiResponse.success(null, HttpStatus.NO_CONTENT.value())
         );

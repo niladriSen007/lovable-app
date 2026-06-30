@@ -1,9 +1,6 @@
 package com.niladri.lovable_app.dto.response.auth;
 
-public record AuthResponse(
-        String accessToken,
-        String refreshToken,
+public record AuthResponseWithoutToken(
         UserProfileResponse user
 ) {
-
 }

@@ -17,12 +17,14 @@ import com.niladri.lovable_app.projection.ProjectWithRole;
 import com.niladri.lovable_app.repository.ProjectMemberRepository;
 import com.niladri.lovable_app.repository.ProjectRepository;
 import com.niladri.lovable_app.repository.UserRepository;
+import com.niladri.lovable_app.security.JWTService;
 import com.niladri.lovable_app.service.project.IProjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,10 +41,11 @@ public class ProjectService implements IProjectService {
     UserRepository userRepository;
     ProjectMapper projectMapper;
     ProjectMemberRepository projectMemberRepository;
+    JWTService jwtService;
 
     @Override
-    public ProjectResponse createProject(ProjectRequest request, Long userId) {
-        UserEntity owner = userExistence(userId);
+    public ProjectResponse createProject(ProjectRequest request) {
+        UserEntity owner = userRepository.getReferenceById(jwtService.getLoggedInUserId()); // This won't do a DB call
         Project project = Project.builder()
                 .name(request.name())
                 .description(request.description())
@@ -64,8 +67,8 @@ public class ProjectService implements IProjectService {
     }
 
     @Override
-    public Page<ProjectSummaryResponse> getLoggedInUserProjects(Long userId, Pageable pageable) {
-        userExistence(userId);
+    public Page<ProjectSummaryResponse> getLoggedInUserProjects(Pageable pageable) {
+        Long userId = jwtService.getLoggedInUserId();
         Page<ProjectWithRole> allProjects = projectRepository.findAllProjectsByUserId(userId, pageable);
         return allProjects
                 .map(projectWithRole ->
@@ -73,22 +76,24 @@ public class ProjectService implements IProjectService {
     }
 
     @Override
-    public ProjectResponse getProjectDetailsByUserAndProjectId(Long id, Long userId) {
-        Project project = projectRepository.findAccessibleProjectsByUserId(userId, id)
-                .orElseThrow(() -> new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + id));
+    @PreAuthorize("@security.canViewProject(#projectId)")
+    public ProjectResponse getProjectDetailsByUserAndProjectId(Long projectId) {
+        Long userId = jwtService.getLoggedInUserId();
+        Project project = projectRepository.findAccessibleProjectsByUserId(userId, projectId)
+                .orElseThrow(() ->
+                        new NotActualOwnerOfProjectException("User with id: " + userId + " is not the owner of project with id: " + projectId));
         return projectMapper.toProjectResponse(project);
     }
 
 
     @Override
-    public ProjectResponse updateProject(Long id, ProjectRequest request, Long userId) {
-        Project project = projectRepository.findById(id).orElseThrow(() -> new ProjectNotExistException("Project not exists with id: " + id));
+    @PreAuthorize("@security.canEditProject(#projectId)")
+    public ProjectResponse updateProject(Long projectId, ProjectRequest request) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotExistException("Project not exists with id: " + projectId));
         if (project.getName().equals(request.name()) && project.getDescription().equals(request.description())) {
             throw new SameProjectDetailsException("Project details is same as before. Please provide new details.");
         }
-//        if (!project.getOwner().getId().equals(userId)) {
-//            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the actual owner of project with id: " + id);
-//        }
         project.setName(request.name());
         project.setDescription(request.description());
         Project updatedProject = projectRepository.save(project);
@@ -96,16 +101,15 @@ public class ProjectService implements IProjectService {
     }
 
     @Override
-    public void softDelete(Long id, Long userId) {
-        Project project = projectRepository.findById(id).orElseThrow(() -> new ProjectNotExistException("Project not exists with id: " + id));
-//        if (!project.getOwner().getId().equals(userId)) {
-//            throw new NotActualOwnerOfProjectException("User with id: " + userId + " is not the actual owner of project with id: " + id);
-//        }
+    @PreAuthorize("@security.canDeleteProject(#projectId)")
+    public void softDelete(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotExistException("Project not exists with id: " + projectId));
         project.setDeletedAt(Instant.now());
         projectRepository.save(project);
     }
 
-    private UserEntity userExistence(Long userId){
+    private UserEntity userExistence(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotExistException("User not found with id: " + userId));
     }
 }

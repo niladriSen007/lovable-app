@@ -9,13 +9,13 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface IProjectService {
-    Page<ProjectSummaryResponse> getLoggedInUserProjects(Long userId, Pageable pageable);
+    Page<ProjectSummaryResponse> getLoggedInUserProjects(Pageable pageable);
 
-    ProjectResponse getProjectDetailsByUserAndProjectId(Long id, Long userId);
+    ProjectResponse getProjectDetailsByUserAndProjectId(Long id);
 
-    ProjectResponse createProject(ProjectRequest request, Long userId);
+    ProjectResponse createProject(ProjectRequest request);
 
-    ProjectResponse updateProject(Long id, ProjectRequest request, Long userId);
+    ProjectResponse updateProject(Long id, ProjectRequest request);
 
-    void softDelete(Long id, Long userId);
+    void softDelete(Long id);
 }

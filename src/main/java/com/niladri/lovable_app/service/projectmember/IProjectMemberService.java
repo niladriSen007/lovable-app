@@ -8,11 +8,11 @@ import com.niladri.lovable_app.entity.ProjectMember;
 import java.util.List;
 
 public interface IProjectMemberService {
-    List<MemberResponse> getProjectMembers(Long projectId, Long userId);
+    List<MemberResponse> getProjectMembers(Long projectId);
 
-    MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId);
+    MemberResponse inviteMember(Long projectId, InviteMemberRequest request);
 
-    MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest request, Long userId);
+    MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest request);
 
-    Void deleteProjectMember(Long projectId, Long memberId, Long userId);
+    Void deleteProjectMember(Long projectId, Long memberId);
 }

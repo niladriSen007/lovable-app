@@ -26,9 +26,8 @@ public class ProjectMemberController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<MemberResponse>>> getProjectMembers(@PathVariable Long projectId) {
-        Long userId = 1L;
         return ResponseEntity.ok(
-                ApiResponse.success(projectMemberService.getProjectMembers(projectId, userId),HttpStatus.OK.value())
+                ApiResponse.success(projectMemberService.getProjectMembers(projectId),HttpStatus.OK.value())
         );
     }
 
@@ -37,9 +36,8 @@ public class ProjectMemberController {
             @PathVariable Long projectId,
             @RequestBody @Valid InviteMemberRequest request
     ) {
-        Long userId = 1L;
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.success(projectMemberService.inviteMember(projectId, request, userId), HttpStatus.CREATED.value())
+                ApiResponse.success(projectMemberService.inviteMember(projectId, request), HttpStatus.CREATED.value())
         );
     }
 
@@ -49,9 +47,8 @@ public class ProjectMemberController {
             @PathVariable Long memberId,
             @RequestBody @Valid UpdateMemberRoleRequest request
     ) {
-        Long userId = 1L;
         return ResponseEntity.ok(
-                ApiResponse.success(projectMemberService.updateMemberRole(projectId, memberId, request, userId), HttpStatus.OK.value())
+                ApiResponse.success(projectMemberService.updateMemberRole(projectId, memberId, request), HttpStatus.OK.value())
         );
     }
 
@@ -60,9 +57,8 @@ public class ProjectMemberController {
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ) {
-        Long userId = 1L;
         return ResponseEntity.ok(
-                ApiResponse.success(projectMemberService.deleteProjectMember(projectId, memberId, userId), HttpStatus.OK.value())
+                ApiResponse.success(projectMemberService.deleteProjectMember(projectId, memberId), HttpStatus.OK.value())
         );
     }
 }

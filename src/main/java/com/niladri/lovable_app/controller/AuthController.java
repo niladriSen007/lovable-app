@@ -5,6 +5,7 @@ import com.niladri.lovable_app.dto.request.auth.LoginRequest;
 import com.niladri.lovable_app.dto.request.auth.SignupRequest;
 import com.niladri.lovable_app.dto.response.ApiResponse;
 import com.niladri.lovable_app.dto.response.auth.AuthResponse;
+import com.niladri.lovable_app.dto.response.auth.AuthResponseWithoutToken;
 import com.niladri.lovable_app.dto.response.auth.UserProfileResponse;
 import com.niladri.lovable_app.service.auth.IAuthService;
 import com.niladri.lovable_app.service.user.IUserService;
@@ -25,7 +26,7 @@ public class AuthController {
     IUserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<AuthResponse>> signup(@RequestBody @Valid SignupRequest request) {
+    public ResponseEntity<ApiResponse<AuthResponseWithoutToken>> signup(@RequestBody @Valid SignupRequest request) {
         return ResponseEntity.ok(ApiResponse.success(authService.signup(request)));
     }
 
